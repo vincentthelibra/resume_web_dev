@@ -31,65 +31,28 @@ jobs:
           const path = require('path');
           const fs = require('fs');
           (async () => {
-            // Launch a headless browser with specific arguments
+            // Launch a headless browser
             const browser = await puppeteer.launch({
-              args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--window-size=1920,1080',
-                '--disable-dev-shm-usage'
-              ],
-              defaultViewport: null
+              args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             
             // Open a new page
             const page = await browser.newPage();
             
-            // Set viewport to a larger desktop size and ensure proper scaling
+            // Set viewport to desktop size (1920x1080)
             await page.setViewport({
               width: 1920,
               height: 1080,
               deviceScaleFactor: 1,
-              isMobile: false,
-              hasTouch: false,
-              isLandscape: true
-            });
-            
-            // Add a CSS override to force desktop view
-            await page.addStyleTag({
-              content: `
-                @media (max-width: 1920px) {
-                  .container, body, html {
-                    min-width: 1200px !important;
-                    width: 1200px !important;
-                  }
-                  /* Force any mobile-specific elements to display as they would on desktop */
-                  [class*="mobile-only"] { display: none !important; }
-                  [class*="desktop-only"] { display: block !important; }
-                }
-              `
             });
             
             // Get the absolute path to index.html
             const htmlPath = path.resolve('./index.html');
             
-            // Load the HTML file with longer timeout and wait until network is idle
+            // Load the HTML file
             await page.goto(`file://${htmlPath}`, {
-              waitUntil: ['networkidle0', 'domcontentloaded', 'load'],
-              timeout: 60000
+              waitUntil: 'networkidle0'
             });
-            
-            // Ensure any media queries for screen size are using desktop
-            await page.emulateMediaFeatures([
-              { name: 'prefers-reduced-motion', value: 'no-preference' },
-              { name: 'prefers-color-scheme', value: 'light' },
-              { name: 'color-gamut', value: 'srgb' },
-              { name: 'monochrome', value: '0' },
-              { name: 'pointer', value: 'fine' }
-            ]);
-            
-            // Wait a bit to make sure everything is fully rendered
-            await page.waitForTimeout(2000);
             
             // Generate PDF
             await page.pdf({
