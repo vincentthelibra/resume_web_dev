@@ -39,6 +39,13 @@ jobs:
             // Open a new page
             const page = await browser.newPage();
             
+            // Set viewport to desktop size (1920x1080)
+            await page.setViewport({
+              width: 1920,
+              height: 1080,
+              deviceScaleFactor: 1,
+            });
+            
             // Get the absolute path to index.html
             const htmlPath = path.resolve('./index.html');
             
@@ -49,9 +56,10 @@ jobs:
             
             // Generate PDF
             await page.pdf({
-              path: 'report.pdf',
-              format: 'A4',
+              path: 'resume.pdf',
+              format: 'Letter', // Standard US Letter size (8.5" x 11")
               printBackground: true,
+              preferCSSPageSize: false, // Use the standard page size rather than any CSS-defined size
               margin: {
                 top: '1cm',
                 right: '1cm',
@@ -76,13 +84,13 @@ jobs:
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
-          name: generated-report
-          path: report.pdf
+          name: resume
+          path: resume.pdf
 
       - name: Commit and push PDF to repository
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add report.pdf
-          git commit -m "Auto-generate PDF from HTML [skip ci]" || echo "No changes to commit"
+          git add resume.pdf
+          git commit -m "Auto-generate resume PDF [skip ci]" || echo "No changes to commit"
           git push
