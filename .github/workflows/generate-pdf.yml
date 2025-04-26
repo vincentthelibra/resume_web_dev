@@ -1,0 +1,85 @@
+name: Generate PDF from HTML
+
+on:
+  push:
+    branches:
+      - data_analyst
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Puppeteer and dependencies
+        run: npm install puppeteer
+
+      - name: Create PDF conversion script
+        run: |
+          cat > convert.js << 'EOL'
+          const puppeteer = require('puppeteer');
+          const path = require('path');
+          const fs = require('fs');
+
+          (async () => {
+            // Launch a headless browser
+            const browser = await puppeteer.launch({
+              args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            
+            // Open a new page
+            const page = await browser.newPage();
+            
+            // Get the absolute path to index.html
+            const htmlPath = path.resolve('./index.html');
+            
+            // Load the HTML file
+            await page.goto(`file://${htmlPath}`, {
+              waitUntil: 'networkidle0'
+            });
+            
+            // Generate PDF
+            await page.pdf({
+              path: 'report.pdf',
+              format: 'A4',
+              printBackground: true,
+              margin: {
+                top: '1cm',
+                right: '1cm',
+                bottom: '1cm',
+                left: '1cm'
+              }
+            });
+            
+            // Close the browser
+            await browser.close();
+            
+            console.log('PDF generated successfully!');
+          })().catch(err => {
+            console.error('Error generating PDF:', err);
+            process.exit(1);
+          });
+          EOL
+
+      - name: Generate PDF from HTML
+        run: node convert.js
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-report
+          path: report.pdf
+
+      - name: Commit and push PDF to repository
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add report.pdf
+          git commit -m "Auto-generate PDF from HTML [skip ci]" || echo "No changes to commit"
+          git push
