@@ -80,12 +80,36 @@ jobs:
             });
             
             // Ensure any media queries for screen size are using desktop
-            await page.emulateMediaFeatures([
-              { name: 'prefers-reduced-motion', value: 'no-preference' },
-              { name: 'prefers-color-scheme', value: 'light' },
-              { name: 'color-gamut', value: 'srgb' },
-              { name: 'pointer', value: 'fine' }
-            ]);
+            await page.emulateMediaType('screen');
+            
+            // Add more extensive CSS override to force desktop view
+            await page.addStyleTag({
+              content: `
+                /* Force desktop view regardless of screen size */
+                @media screen {
+                  body, html, .container, main, #root {
+                    min-width: 1200px !important;
+                    width: 1200px !important;
+                    max-width: none !important;
+                  }
+                  
+                  /* Override any mobile-specific styles */
+                  [class*="mobile-"], [class*="sm:"], [class*="md:"] {
+                    display: none !important;
+                  }
+                  
+                  /* Ensure desktop elements are visible */
+                  [class*="desktop-"], [class*="lg:"], [class*="xl:"] {
+                    display: block !important;
+                  }
+                  
+                  /* Override any responsive breakpoints */
+                  * {
+                    max-width: none !important;
+                  }
+                }
+              `
+            });
             
             // Wait a bit to make sure everything is fully rendered
             await page.waitForTimeout(2000);
