@@ -1,16 +1,20 @@
 name: Generate PDF from HTML
-
 on:
   push:
     branches:
       - data_analyst
-
 jobs:
   generate-pdf:
     runs-on: ubuntu-latest
+    # Add permission for writing to the repository
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # This ensures we have enough history for push operations
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,7 +30,6 @@ jobs:
           const puppeteer = require('puppeteer');
           const path = require('path');
           const fs = require('fs');
-
           (async () => {
             // Launch a headless browser
             const browser = await puppeteer.launch({
@@ -77,11 +80,9 @@ jobs:
           path: report.pdf
 
       - name: Commit and push PDF to repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name 'GitHub Actions Bot'
-          git config --global user.email 'actions@github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add report.pdf
           git commit -m "Auto-generate PDF from HTML [skip ci]" || echo "No changes to commit"
-          git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:${{ github.ref_name }}
+          git push
