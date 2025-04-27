@@ -1,146 +1,27 @@
 name: Generate PDF from HTML
+
 on:
   push:
     branches:
       - data_analyst
+
 jobs:
   generate-pdf:
     runs-on: ubuntu-latest
-    # Add permission for writing to the repository
     permissions:
       contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # This ensures we have enough history for push operations
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: HTML to PDF
+        uses: fifsky/html-to-pdf-action@master
         with:
-          node-version: "18"
-
-      - name: Install Puppeteer and dependencies
-        run: npm install puppeteer
-
-      - name: Create PDF conversion script
-        run: |
-          cat > convert.js << 'EOL'
-          const puppeteer = require('puppeteer');
-          const path = require('path');
-          const fs = require('fs');
-          (async () => {
-            // Launch a headless browser with specific arguments
-            const browser = await puppeteer.launch({
-              args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--window-size=1920,1080',
-                '--disable-dev-shm-usage'
-              ],
-              defaultViewport: null
-            });
-            
-            // Open a new page
-            const page = await browser.newPage();
-            
-            // Set viewport to a larger desktop size and ensure proper scaling
-            await page.setViewport({
-              width: 1920,
-              height: 1080,
-              deviceScaleFactor: 1,
-              isMobile: false,
-              hasTouch: false,
-              isLandscape: true
-            });
-            
-            // Add a CSS override to force desktop view
-            await page.addStyleTag({
-              content: `
-                @media (max-width: 1920px) {
-                  .container, body, html {
-                    min-width: 1200px !important;
-                    width: 1200px !important;
-                  }
-                  /* Force any mobile-specific elements to display as they would on desktop */
-                  [class*="mobile-only"] { display: none !important; }
-                  [class*="desktop-only"] { display: block !important; }
-                }
-              `
-            });
-            
-            // Get the absolute path to index.html
-            const htmlPath = path.resolve('./index.html');
-            
-            // Load the HTML file with longer timeout and wait until network is idle
-            await page.goto(`file://${htmlPath}`, {
-              waitUntil: ['networkidle0', 'domcontentloaded', 'load'],
-              timeout: 60000
-            });
-            
-            // Ensure any media queries for screen size are using desktop
-            await page.emulateMediaType('screen');
-            
-            // Add more extensive CSS override to force desktop view
-            await page.addStyleTag({
-              content: `
-                /* Force desktop view regardless of screen size */
-                @media screen {
-                  body, html, .container, main, #root {
-                    min-width: 1200px !important;
-                    width: 1200px !important;
-                    max-width: none !important;
-                  }
-                  
-                  /* Override any mobile-specific styles */
-                  [class*="mobile-"], [class*="sm:"], [class*="md:"] {
-                    display: none !important;
-                  }
-                  
-                  /* Ensure desktop elements are visible */
-                  [class*="desktop-"], [class*="lg:"], [class*="xl:"] {
-                    display: block !important;
-                  }
-                  
-                  /* Override any responsive breakpoints */
-                  * {
-                    max-width: none !important;
-                  }
-                }
-              `
-            });
-            
-            // Wait a bit to make sure everything is fully rendered
-            // Use setTimeout instead of page.waitForTimeout which may not be available in this Puppeteer version
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Generate PDF
-            await page.pdf({
-              path: 'resume.pdf',
-              format: 'Letter', // Standard US Letter size (8.5" x 11")
-              printBackground: true,
-              preferCSSPageSize: false, // Use the standard page size rather than any CSS-defined size
-              margin: {
-                top: '1cm',
-                right: '1cm',
-                bottom: '1cm',
-                left: '1cm'
-              }
-            });
-            
-            // Close the browser
-            await browser.close();
-            
-            console.log('PDF generated successfully!');
-          })().catch(err => {
-            console.error('Error generating PDF:', err);
-            process.exit(1);
-          });
-          EOL
-
-      - name: Generate PDF from HTML
-        run: node convert.js
+          htmlFile: ./index.html
+          outputFile: ./resume.pdf
+          pdfOptions: '{"format": "Letter", "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}, "printBackground": true}'
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
