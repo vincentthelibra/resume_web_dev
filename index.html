@@ -18,8 +18,8 @@
     }
   </style>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js" ></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js" ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
 </head>
 
 <body>
@@ -36,7 +36,8 @@
     <div class="container">
       <div class="row justify-content-end">
         <div class="col-3">
-          <button class="btn btn-secondary"><a href="javascript:generatePDF()" class="nav-link" id="downloadButton">Download Resume</a></button>
+          <button class="btn btn-secondary"><a href="javascript:generatePDF()" class="nav-link"
+              id="downloadButton">Download Resume</a></button>
         </div>
       </div>
     </div>
@@ -218,7 +219,8 @@
                   <div class="d-flex">
                     <div class="me-2">»</div>
                     <div>
-                      Conducted ETL for finance data from various sources like SAP HANA/BW Data Warehouse, SharePoint, and
+                      Conducted ETL for finance data from various sources like SAP HANA/BW Data Warehouse, SharePoint,
+                      and
                       various APIs.
                     </div>
                   </div>
@@ -405,113 +407,59 @@
           </div>
         </div>
       </div>
-    </div>
-      <!-- Education -->
-      <section id="education">
-        <div class="container d-flex align-items-center p-2 my-2 bg-primary shadow-sm">
-          <h5 class="text-white">
-            <span class="me-2">»</span>
-            Education
-          </h5>
-        </div>
-        <div class="container">
-          <div class="row border-bottom">
-            <div class="col-3 text-nowrap">
-              <h6>2002 - 2006</h6>
-            </div>
-            <div class="col-6">
-              <h6 class="fw-bold">Bachelor's Degree, Finance</h6>
-            </div>
-            <div class="col-3">
-              <h6 class="text-end text-secondary">University of International Business and Economics</h6>
-            </div>
-          </div>
   </div>
-  
-  <script>
-    async function generatePDF() {
-        document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
-        
-        // Use standard A4 proportions but larger dimensions for clarity
-        const WIDTH = 595;  // Much larger for higher quality
-        const HEIGHT = 842;  // A4 proportions (1:√2)
-        const MARGIN = 72;
-        
-        // Create PDF instance with custom size
-        var doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'pt',
-            format: [WIDTH, HEIGHT]
-        });
-        
-        // Get the element to convert
-        var downloading = document.getElementById("whatToPrint");
-        
-        // Convert HTML to canvas with higher scale factor for better quality
-        const canvas = await html2canvas(downloading, {
-            allowTaint: true,
-            useCORS: true,
-            scale: 1,  // Higher scale for much better quality
-            width: downloading.offsetWidth, // Use the actual width of the element
-            height: downloading.offsetHeight, // Use the actual height 
-            logging: false,
-            imageTimeout: 0,  // No timeout
-            backgroundColor: "#ffffff"  // White background
-        });
-        
-        // Calculate optimal dimensions while preserving aspect ratio
-        const imgWidth = WIDTH - (2 * MARGIN);
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        // Add image to the PDF with high quality settings
-        doc.addImage(
-            canvas.toDataURL('image/jpeg', 1.0),  // Use JPEG for better text quality
-            'JPEG',
-            MARGIN,
-            MARGIN,
-            imgWidth,
-            imgHeight
-        );
-        
-        // Add more pages if needed
-        if (imgHeight > HEIGHT - (2 * MARGIN)) {
-            let heightLeft = imgHeight;
-            let position = 0;
-            
-            // First page already added
-            heightLeft -= (HEIGHT - (2 * MARGIN));
-            position += (HEIGHT - (2 * MARGIN));
-            
-            // Add additional pages if needed
-            while (heightLeft > 0) {
-                doc.addPage();
-                doc.addImage(
-                    canvas.toDataURL('image/jpeg', 1.0),
-                    'JPEG',
-                    MARGIN,
-                    MARGIN - position,
-                    imgWidth,
-                    imgHeight
-                );
-                heightLeft -= (HEIGHT - (2 * MARGIN));
-                position += (HEIGHT - (2 * MARGIN));
-            }
-        }
-        
-        // For better quality, set PDF compression and zoom options
-        const pdfOptions = {
-            compress: false,  // Disable compression for better quality
-            precision: 16     // Higher precision
-        };
-        
-        // Save with options
-        doc.save("resume.pdf", pdfOptions);
-        
-        // Reset button text
-        document.getElementById("downloadButton").innerHTML = "Download Resume";
-    }
+  <!-- Education -->
+  <section id="education">
+    <div class="container d-flex align-items-center p-2 my-2 bg-primary shadow-sm">
+      <h5 class="text-white">
+        <span class="me-2">»</span>
+        Education
+      </h5>
+    </div>
+    <div class="container">
+      <div class="row border-bottom">
+        <div class="col-3 text-nowrap">
+          <h6>2002 - 2006</h6>
+        </div>
+        <div class="col-6">
+          <h6 class="fw-bold">Bachelor's Degree, Finance</h6>
+        </div>
+        <div class="col-3">
+          <h6 class="text-end text-secondary">University of International Business and Economics</h6>
+        </div>
+      </div>
+    </div>
 
-  </script>
+    <script>
+      async function generatePDF() {
+        document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
+
+        // Use standard A4 proportions but larger dimensions for clarity
+        const WIDTH = 595;
+        const HEIGHT = 842;
+        const MARGIN = 72;
+
+        //Downloading
+        var downloading = document.getElementById("whatToPrint");
+        var doc = new jsPDF('p', 'pt');
+
+        await html2canvas(downloading, {
+          allowTaint: true,
+          useCORS: true,
+          width: 595
+        }).then((canvas) => {
+
+          //Canvas (convert to PNG)
+          doc.addImage(canvas.toDataURL("image/png"), 'PNG', 5, 5, 595, 842);
+        })
+
+        doc.save("resume.pdf");
+
+        //End of downloading
+
+        document.getElementById("downloadButton").innerHTML = "Click to download";
+      }
+    </script>
 </body>
 
 </html>
