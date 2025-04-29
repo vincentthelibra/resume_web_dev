@@ -433,9 +433,9 @@
         document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
         
         // Use standard A4 proportions but larger dimensions for clarity
-        const WIDTH = 1240;  // Much larger for higher quality
-        const HEIGHT = 1754;  // A4 proportions (1:√2)
-        const MARGIN = 40;
+        const WIDTH = 595;  // Much larger for higher quality
+        const HEIGHT = 842;  // A4 proportions (1:√2)
+        const MARGIN = 72;
         
         // Create PDF instance with custom size
         var doc = new jsPDF({
@@ -451,7 +451,7 @@
         const canvas = await html2canvas(downloading, {
             allowTaint: true,
             useCORS: true,
-            scale: 3,  // Higher scale for much better quality
+            scale: 1,  // Higher scale for much better quality
             width: downloading.offsetWidth, // Use the actual width of the element
             height: downloading.offsetHeight, // Use the actual height 
             logging: false,
