@@ -17,10 +17,10 @@ jobs:
           fetch-depth: 0
 
       - name: HTML to PDF
-          uses: markwilson/html2pdf@v1.0
-          with:
-            htmlPath: 'index.html'
-            pdfName: 'resume'
+        uses: markwilson/html2pdf@v1.0
+        with:
+          htmlPath: 'index.html'
+          pdfName: 'resume'
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
