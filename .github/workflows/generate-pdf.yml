@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
 
       - name: HTML to PDF
-        uses: narthanaj/html-to-pdf-action@v1
+        uses: narthanaj/html-to-pdf-action@v1.0.0
         with:
           source: index.html
           output: resume.pdf
