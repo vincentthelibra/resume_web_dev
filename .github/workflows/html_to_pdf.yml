@@ -18,7 +18,7 @@ jobs:
         with:
           htmlFile: index.html
           outputFile: resume.pdf
-          pdfOptions: '{"format": "A4", "displayHeaderFooter": true, "scale": 0.5, "printBackground":true, "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}}'
+          pdfOptions: '{"format": "A4", "displayHeaderFooter": true, "scale": 0.5, "printBackground":true, "margin": {"top": "5mm", "left": "5mm", "right": "5mm", "bottom": "5mm"}}'
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
