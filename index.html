@@ -407,59 +407,61 @@
           </div>
         </div>
       </div>
+
+      <!-- Education -->
+      <section id="education">
+        <div class="container d-flex align-items-center p-2 my-2 bg-primary shadow-sm">
+          <h5 class="text-white">
+            <span class="me-2">»</span>
+            Education
+          </h5>
+        </div>
+        <div class="container">
+          <div class="row border-bottom">
+            <div class="col-3 text-nowrap">
+              <h6>2002 - 2006</h6>
+            </div>
+            <div class="col-6">
+              <h6 class="fw-bold">Bachelor's Degree, Finance</h6>
+            </div>
+            <div class="col-3">
+              <h6 class="text-end text-secondary">University of International Business and Economics</h6>
+            </div>
+          </div>
+        </div>
+
   </div>
-  <!-- Education -->
-  <section id="education">
-    <div class="container d-flex align-items-center p-2 my-2 bg-primary shadow-sm">
-      <h5 class="text-white">
-        <span class="me-2">»</span>
-        Education
-      </h5>
-    </div>
-    <div class="container">
-      <div class="row border-bottom">
-        <div class="col-3 text-nowrap">
-          <h6>2002 - 2006</h6>
-        </div>
-        <div class="col-6">
-          <h6 class="fw-bold">Bachelor's Degree, Finance</h6>
-        </div>
-        <div class="col-3">
-          <h6 class="text-end text-secondary">University of International Business and Economics</h6>
-        </div>
-      </div>
-    </div>
 
-    <script>
-      async function generatePDF() {
-        document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
+  <script>
+    async function generatePDF() {
+      document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
 
-        // Use standard A4 proportions but larger dimensions for clarity
-        const WIDTH = 595;
-        const HEIGHT = 842;
-        const MARGIN = 72;
+      // Use standard A4 proportions but larger dimensions for clarity
+      const WIDTH = 595;
+      const HEIGHT = 842;
+      const MARGIN = 72;
 
-        //Downloading
-        var downloading = document.getElementById("whatToPrint");
-        var doc = new jsPDF('p', 'pt');
+      //Downloading
+      var downloading = document.getElementById("whatToPrint");
+      var doc = new jsPDF('p', 'pt');
 
-        await html2canvas(downloading, {
-          allowTaint: true,
-          useCORS: true,
-          width: 595
-        }).then((canvas) => {
+      await html2canvas(downloading, {
+        allowTaint: true,
+        useCORS: true,
+        width: 595
+      }).then((canvas) => {
 
-          //Canvas (convert to PNG)
-          doc.addImage(canvas.toDataURL("image/png"), 'PNG', 5, 5, 595, 842);
-        })
+        //Canvas (convert to PNG)
+        doc.addImage(canvas.toDataURL("image/png"), 'PNG', 5, 5, 595, 842);
+      })
 
-        doc.save("resume.pdf");
+      doc.save("resume.pdf");
 
-        //End of downloading
+      //End of downloading
 
-        document.getElementById("downloadButton").innerHTML = "Click to download";
-      }
-    </script>
+      document.getElementById("downloadButton").innerHTML = "Click to download";
+    }
+  </script>
 </body>
 
 </html>

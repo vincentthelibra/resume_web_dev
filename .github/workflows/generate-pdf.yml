@@ -1,37 +1,37 @@
-name: Generate PDF from HTML
-
-on:
-  push:
-    branches:
-      - data_analyst
-
-jobs:
-  generate-pdf:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: HTML to PDF
-        uses: narthanaj/html-to-pdf-action@v1.0.0
-        with:
-          source: index.html
-          output: resume.pdf
-
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: resume
-          path: resume.pdf
-
-      - name: Commit and push PDF to repository
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add resume.pdf
-          git commit -m "Auto-generate resume PDF [skip ci]" || echo "No changes to commit"
-          git push
+# name: Generate PDF from HTML
+#
+# on:
+#   push:
+#     branches:
+#       - data_analyst
+#
+# jobs:
+#   generate-pdf:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#
+#       - name: HTML to PDF
+#         uses: narthanaj/html-to-pdf-action@v1.0.0
+#         with:
+#           source: index.html
+#           output: resume.pdf
+#
+#       - name: Upload PDF artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: resume
+#           path: resume.pdf
+#
+#       - name: Commit and push PDF to repository
+#         run: |
+#           git config --global user.name 'github-actions[bot]'
+#           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+#           git add resume.pdf
+#           git commit -m "Auto-generate resume PDF [skip ci]" || echo "No changes to commit"
+#           git push
