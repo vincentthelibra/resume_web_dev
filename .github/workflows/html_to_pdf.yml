@@ -18,7 +18,8 @@ jobs:
         with:
           htmlFile: index.html
           outputFile: resume.pdf
-          pdfOptions: '{"width": "22cm", "height": "29.7cm", "displayHeaderFooter": true, "scale": 0.5, "printBackground":true, "margin": {"top": "5mm", "left": "5mm", "right": "5mm", "bottom": "5mm"}}'
+          pdfOptions: '{"width": "22cm", "height": "29.7cm", "displayHeaderFooter": true, "scale": 0.5, "printBackground":true}'
+          # pdfOptions: '{"width": "22cm", "height": "29.7cm", "displayHeaderFooter": true, "scale": 0.5, "printBackground":true, "margin": {"top": "5mm", "left": "5mm", "right": "5mm", "bottom": "5mm"}}'
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
