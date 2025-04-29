@@ -430,71 +430,87 @@
   
   <script>
     async function generatePDF() {
-      document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
-      
-      // Constants for A4 size
-      const A4_WIDTH = 595.28;
-      const A4_HEIGHT = 841.89;
-      const WIDTH_MARGIN = 10;
-      const HEIGHT_MARGIN = 10;
-      const PAGE_HEIGHT = A4_HEIGHT - 2 * HEIGHT_MARGIN;
-      
-      // Create PDF instance
-      var doc = new jsPDF('p', 'pt', 'a4');
-      
-      // Get the element to convert
-      var downloading = document.getElementById("whatToPrint");
-      
-      // Convert HTML to canvas
-      const canvas = await html2canvas(downloading, {
-          allowTaint: true,
-          useCORS: true,
-          scale: 1
-      });
-      
-      // Calculate the imgWidth, imgHeight to print on PDF
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const imgWidth = A4_WIDTH - 2 * WIDTH_MARGIN;  // max image width
-      const imgHeight = (imgWidth / canvasWidth) * canvasHeight; // scale height in equal proportion
-      
-      // Handle multi-page content if needed
-      let heightLeft = imgHeight;
-      let position = 0;
-      let pageNum = 1;
-      
-      // Add image to first page
-      doc.addImage(
-          canvas.toDataURL('image/png', 1.0),
-          'PNG',
-          WIDTH_MARGIN,
-          HEIGHT_MARGIN,
-          imgWidth,
-          imgHeight
-      );
-      
-      // Add new pages if content overflows
-      heightLeft -= PAGE_HEIGHT;
-      while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          doc.addPage();
-          doc.addImage(
-              canvas.toDataURL('image/png', 1.0),
-              'PNG',
-              WIDTH_MARGIN,
-              position,
-              imgWidth,
-              imgHeight
-          );
-          heightLeft -= PAGE_HEIGHT;
-          pageNum++;
-      }
-      
-      // Save the PDF
-      doc.save("resume.pdf");
-      
-      // End of downloading
-      document.getElementById("downloadButton").innerHTML = "Download Resume";
+        document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
+        
+        // Constants for a slightly modified A4 size (wider to make fonts larger)
+        const WIDTH = 750;  // Wider than standard A4 for better readability
+        const HEIGHT = 1050; // Taller to maintain proportions
+        const MARGIN = 20;
+        
+        // Create PDF instance with custom size for better readability
+        var doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'pt',
+            format: [WIDTH, HEIGHT]
+        });
+        
+        // Get the element to convert including the header
+        var downloading = document.getElementById("whatToPrint");
+        
+        // Convert HTML to canvas with scale factor for better quality
+        const canvas = await html2canvas(downloading, {
+            allowTaint: true,
+            useCORS: true,
+            scale: 2,  // Higher scale for better quality
+            width: WIDTH - (2 * MARGIN),
+            logging: true,
+            windowWidth: WIDTH,
+            imageTimeout: 15000,  // Longer timeout for better rendering
+            onclone: function(clonedDoc) {
+                // Make sure all elements are visible in the clone before rendering
+                const clonedElement = clonedDoc.getElementById("whatToPrint");
+                if (clonedElement) {
+                    clonedElement.style.width = (WIDTH - (2 * MARGIN)) + "px";
+                }
+            }
+        });
+        
+        // Add the image to the PDF with full width minus margins
+        const imgWidth = WIDTH - (2 * MARGIN);
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Add image to the PDF
+        doc.addImage(
+            canvas.toDataURL('image/png', 1.0),
+            'PNG',
+            MARGIN,
+            MARGIN,
+            imgWidth,
+            imgHeight
+        );
+        
+        // Add more pages if content is too long
+        if (imgHeight > HEIGHT - (2 * MARGIN)) {
+            let remainingHeight = imgHeight;
+            let currentPosition = 0;
+            
+            while (remainingHeight > HEIGHT - (2 * MARGIN)) {
+                // Add a new page
+                doc.addPage();
+                
+                // Calculate position for next page
+                currentPosition += (HEIGHT - (2 * MARGIN));
+                
+                // Add image at negative position to show next part
+                doc.addImage(
+                    canvas.toDataURL('image/png', 1.0),
+                    'PNG',
+                    MARGIN,
+                    MARGIN - currentPosition,
+                    imgWidth,
+                    imgHeight
+                );
+                
+                // Reduce remaining height
+                remainingHeight -= (HEIGHT - (2 * MARGIN));
+            }
+        }
+        
+        // Save the PDF
+        doc.save("resume.pdf");
+        
+        // End of downloading
+        document.getElementById("downloadButton").innerHTML = "Download Resume";
     }
   </script>
 
