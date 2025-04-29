@@ -1,0 +1,21 @@
+name: Generate PDF from HTML
+on:
+  push:
+    branches:
+      - data_analyst
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: html to pdf
+        uses: fifsky/html-to-pdf-action@master
+        with:
+          htmlFile: index.html
+          outputFile: resume.pdf
+          pdfOptions: '{"format": "A4", "displayHeaderFooter": "true", "scale": "0.6", "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}}'
