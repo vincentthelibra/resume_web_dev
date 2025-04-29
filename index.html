@@ -17,6 +17,9 @@
       width: auto;
     }
   </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js" ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js" ></script>
 </head>
 
 <body>
@@ -28,6 +31,15 @@
       </div>
     </div>
   </div>
+
+  <div class="container">
+    <div class="row justify-content-end">
+      <div class="col-3">
+        <button class="btn btn-secondary"><a href="javascript:generatePDF()" class="nav-link" id="downloadButton">Download Resume</a></button>
+      </div>
+    </div>
+  </div>
+
   <div class="container d-flex align-items-center p-3 my-3 text-white bg-secondary shadow-sm">
     <div class="col lh-1 text-center">
       <h1 class="h1 mb-0 text-white lh-1 text">QING LI (VINCENT) | RESUME</h1>
@@ -414,6 +426,43 @@
           </div>
         </div>
       </div>
+  
+  <script>
+    async function generatePDF() {
+        document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
+        
+        // Downloading
+        var downloading = document.getElementById("whatToPrint");
+        var doc = new jsPDF('p', 'pt');
+        
+        await html2canvas(downloading, {
+            allowTaint: true,
+            useCORS: true,
+            width: 794
+        }).then((canvas) => {
+            const margin = 40;
+            const maxWidth = doc.internal.pageSize.getWidth() - (margin * 2);
+            
+            const imageWidth = maxWidth;
+            const imageHeight = (canvas.height * imageWidth) / canvas.width;
+            
+            doc.addImage(
+                canvas.toDataURL("image/png"), 
+                'PNG', 
+                margin,
+                margin,
+                imageWidth, 
+                imageHeight
+            );
+        });
+        
+        doc.save("resume.pdf");
+        
+        // End of downloading
+        document.getElementById("downloadButton").innerHTML = "Download Resume";
+    }
+  </script>
+
 </body>
 
 </html>
