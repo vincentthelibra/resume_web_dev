@@ -432,88 +432,86 @@
     async function generatePDF() {
         document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
         
-        // Constants for a slightly modified A4 size (wider to make fonts larger)
-        const WIDTH = 750;  // Wider than standard A4 for better readability
-        const HEIGHT = 1050; // Taller to maintain proportions
-        const MARGIN = 20;
+        // Use standard A4 proportions but larger dimensions for clarity
+        const WIDTH = 1240;  // Much larger for higher quality
+        const HEIGHT = 1754;  // A4 proportions (1:√2)
+        const MARGIN = 40;
         
-        // Create PDF instance with custom size for better readability
+        // Create PDF instance with custom size
         var doc = new jsPDF({
             orientation: 'portrait',
             unit: 'pt',
             format: [WIDTH, HEIGHT]
         });
         
-        // Get the element to convert including the header
+        // Get the element to convert
         var downloading = document.getElementById("whatToPrint");
         
-        // Convert HTML to canvas with scale factor for better quality
+        // Convert HTML to canvas with higher scale factor for better quality
         const canvas = await html2canvas(downloading, {
             allowTaint: true,
             useCORS: true,
-            scale: 1,  // Higher scale for better quality
-            width: WIDTH - (2 * MARGIN),
-            logging: true,
-            windowWidth: WIDTH,
-            imageTimeout: 15000,  // Longer timeout for better rendering
-            onclone: function(clonedDoc) {
-                // Make sure all elements are visible in the clone before rendering
-                const clonedElement = clonedDoc.getElementById("whatToPrint");
-                if (clonedElement) {
-                    clonedElement.style.width = (WIDTH - (2 * MARGIN)) + "px";
-                }
-            }
+            scale: 3,  // Higher scale for much better quality
+            width: downloading.offsetWidth, // Use the actual width of the element
+            height: downloading.offsetHeight, // Use the actual height 
+            logging: false,
+            imageTimeout: 0,  // No timeout
+            backgroundColor: "#ffffff"  // White background
         });
         
-        // Add the image to the PDF with full width minus margins
+        // Calculate optimal dimensions while preserving aspect ratio
         const imgWidth = WIDTH - (2 * MARGIN);
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        // Add image to the PDF
+        // Add image to the PDF with high quality settings
         doc.addImage(
-            canvas.toDataURL('image/png', 1.0),
-            'PNG',
+            canvas.toDataURL('image/jpeg', 1.0),  // Use JPEG for better text quality
+            'JPEG',
             MARGIN,
             MARGIN,
             imgWidth,
             imgHeight
         );
         
-        // Add more pages if content is too long
+        // Add more pages if needed
         if (imgHeight > HEIGHT - (2 * MARGIN)) {
-            let remainingHeight = imgHeight;
-            let currentPosition = 0;
+            let heightLeft = imgHeight;
+            let position = 0;
             
-            while (remainingHeight > HEIGHT - (2 * MARGIN)) {
-                // Add a new page
+            // First page already added
+            heightLeft -= (HEIGHT - (2 * MARGIN));
+            position += (HEIGHT - (2 * MARGIN));
+            
+            // Add additional pages if needed
+            while (heightLeft > 0) {
                 doc.addPage();
-                
-                // Calculate position for next page
-                currentPosition += (HEIGHT - (2 * MARGIN));
-                
-                // Add image at negative position to show next part
                 doc.addImage(
-                    canvas.toDataURL('image/png', 1.0),
-                    'PNG',
+                    canvas.toDataURL('image/jpeg', 1.0),
+                    'JPEG',
                     MARGIN,
-                    MARGIN - currentPosition,
+                    MARGIN - position,
                     imgWidth,
                     imgHeight
                 );
-                
-                // Reduce remaining height
-                remainingHeight -= (HEIGHT - (2 * MARGIN));
+                heightLeft -= (HEIGHT - (2 * MARGIN));
+                position += (HEIGHT - (2 * MARGIN));
             }
         }
         
-        // Save the PDF
-        doc.save("resume.pdf");
+        // For better quality, set PDF compression and zoom options
+        const pdfOptions = {
+            compress: false,  // Disable compression for better quality
+            precision: 16     // Higher precision
+        };
         
-        // End of downloading
+        // Save with options
+        doc.save("resume.pdf", pdfOptions);
+        
+        // Reset button text
         document.getElementById("downloadButton").innerHTML = "Download Resume";
     }
-  </script>
 
+  </script>
 </body>
 
 </html>
