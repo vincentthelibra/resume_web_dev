@@ -438,22 +438,9 @@
         await html2canvas(downloading, {
             allowTaint: true,
             useCORS: true,
-            width: 794
+            width: 595  // Standard A4 width in points
         }).then((canvas) => {
-            const margin = 40;
-            const maxWidth = doc.internal.pageSize.getWidth() - (margin * 2);
-            
-            const imageWidth = maxWidth;
-            const imageHeight = (canvas.height * imageWidth) / canvas.width;
-            
-            doc.addImage(
-                canvas.toDataURL("image/png"), 
-                'PNG', 
-                margin,
-                margin,
-                imageWidth, 
-                imageHeight
-            );
+            doc.addImage(canvas.toDataURL("image/png"), 'PNG', 5, 5, 585, 820);
         });
         
         doc.save("resume.pdf");
